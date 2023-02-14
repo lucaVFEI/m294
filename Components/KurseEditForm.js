@@ -8,6 +8,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
+import Select from 'react-select'
 
 function KurseEditForm() {
     
@@ -16,8 +17,9 @@ function KurseEditForm() {
     let id_kurs = params.id;
       
     /* State für die vorhandenen Werte der jeweiligen Felder */  
-    const [loadedValues, setLoadedValues] = useState([]);  
-    
+    const [loadedValues, setLoadedValues] = useState([]);
+    const [dozentenValue, setDozentenValue] = useState([]);
+
     /* Input state*/  
     const [inputs, setInputs] = useState([]);
     
@@ -34,13 +36,14 @@ function KurseEditForm() {
     /* Beim aufrufen der Seite wird die Funktion zum laden der Daten aufgerufen */
     useEffect(() => {
         getData();
+        getDozenten();
     }, []);
     
     /* Hier werden die Daten des Kurses von der API geladen. Der API-Call wird asynchron ausgeführt */
     const getData = async () => {
         /* Fehler abfangen */
         try{
-            const res = await axios.get("https://luca.dnet.ch/kurs/" + id_kurs);
+            const res = await axios.get("https://luca.dnet.ch/kurse/" + id_kurs);
             setLoadedValues(res.data.data[0]);
         }catch(err){
             handleShowError(true);
@@ -54,6 +57,11 @@ function KurseEditForm() {
         setInputs(values => ({...values, [name]: value}));
     };
 
+    const handleChangeDozent = (selectedOptions) => {
+    setInputs(values => ({...values, "nr_dozent": selectedOptions.value}))
+    console.log(selectedOptions.value);
+    };
+
     /* Submit Listener */
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -65,6 +73,7 @@ function KurseEditForm() {
     
     /* Die Daten werden an die API geschickt. Der API-Call wird asynchron ausgeführt. */
     const updateData = async () => {
+        console.log(inputs);
         const json = JSON.stringify(inputs);
         const config = {
             headers: {
@@ -72,7 +81,7 @@ function KurseEditForm() {
             }
         };
         try{
-            const response = await axios.put("https://luca.dnet.ch/kurs/" + id_kurs, json, config);
+            const response = await axios.put("https://luca.dnet.ch/kurse/" + id_kurs, json, config);
             handleShowSuccess(true);
             setInputs([]); 
         }catch(err){
@@ -81,7 +90,31 @@ function KurseEditForm() {
         handleLoading(false);
     };
 
+    const getDozenten = async () => {
+        /* Fehler abfangen */
+        try{
+            const res = await axios.get("https://luca.dnet.ch/dozenten/");
+            //console.log(res);
+            setDozentenValue(res.data.data);
+        }catch(err){
+            handleShowError(true);
+        }  
+    };
+    
     /* Rendering des Formulars */
+    function Item(value, label) {
+        this.value = value;
+        this.label = label;
+        }
+
+    let optionsDozent = []
+
+    for (let i = 0; i < dozentenValue.length; i++)
+    {
+        optionsDozent.push(new Item(dozentenValue[i].id_dozent, dozentenValue[i].vorname))
+        console.log("vorname:" + dozentenValue[i].vorname)
+    }
+
     return (
         <div>
         <Alert show={showSuccess} variant="success">
@@ -98,7 +131,7 @@ function KurseEditForm() {
         <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formKursNummer">
                 <Form.Label>Kursnummer</Form.Label>
-                <Form.Control name="kursnummer" type="number" placeholder="Kursnummer" defaultValue={loadedValues.kursnummer} onChange={handleChange}/>
+                <Form.Control name="nr_kurs" type="number" placeholder="Kursnummer" defaultValue={loadedValues.nr_kurs} onChange={handleChange}/>
             </Form.Group>
             <Form.Group className="mb-3" controlId="formKursThema">
                 <Form.Label>Kursthema</Form.Label>
@@ -110,7 +143,7 @@ function KurseEditForm() {
             </Form.Group>
             <Form.Group className="mb-3" controlId="formKursDozent">
                 <Form.Label>Dozent Nr.</Form.Label>
-                <Form.Control name="nr_dozent" type="number" placeholder="Dozent Nr." defaultValue={loadedValues.nr_dozent} onChange={handleChange}/>
+                <Select options={optionsDozent} isSearchable={true} onChange={handleChangeDozent}/>
             </Form.Group>
             <Form.Group className="mb-3" controlId="formKursStartdatum">
                 <Form.Label>Startdatum</Form.Label>

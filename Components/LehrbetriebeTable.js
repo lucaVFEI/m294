@@ -14,10 +14,10 @@ import {Pencil} from 'react-bootstrap-icons';
 import {Trash} from 'react-bootstrap-icons';
 import {PlusCircle} from 'react-bootstrap-icons';
 
-function KurseTable() {
+function LehrbetriebeTable() {
       
-    /* State für geladenen Kurse*/  
-    const [kurse, setKurse] = useState([]);
+    /* State für geladenen Lehrbetriebe*/  
+    const [lehrbetriebe, setLehrbetriebe] = useState([]);
     
     /* Modal states & handler */
     const [modalID, setModalID] = useState("");
@@ -39,10 +39,10 @@ function KurseTable() {
         getData();
     }, []);
     
-    /* Hier werden alle Kurse von der API geladen. Der API-Call wird asynchron ausgeführt */
+    /* Hier werden alle Lehrbetriebe von der API geladen. Der API-Call wird asynchron ausgeführt */
     const getData = async () => {
-        const res = await axios.get("https://luca.dnet.ch/kurse/");
-        setKurse(res.data.data);
+        const res = await axios.get("https://luca.dnet.ch/lehrbetriebe/");
+        setLehrbetriebe(res.data.data);
     };
 
     /* Hier wird der Header der Tabelle vorbereitet */
@@ -51,12 +51,10 @@ function KurseTable() {
             <thead> 
                 <tr>
                     <th>Id</th>
-                    <th>Thema</th>
-                    <th>Startdatum</th>
-                    <th>Enddatum</th>
-                    <th>Kursteilnehmer</th>
-                    <th>Bearbeiten</th>
-                    <th>Löschen</th>
+                    <th>Firma</th>
+                    <th>Strasse</th>
+                    <th>PLZ</th>
+                    <th>Ort</th>
                 </tr>
             </thead>);
     }
@@ -65,16 +63,16 @@ function KurseTable() {
     function renderBody() {
         return(
             <tbody>
-            {kurse.map((row) => {
+            {lehrbetriebe.map((row) => {
                 return(
-                <tr key={row.id_kurs}>
-                    <td style={{ padding: '10px'}}>{row.id_kurs}</td>
-                    <td style={{ padding: '10px'}}>{row.kursthema}</td>
-                    <td style={{ padding: '10px'}}>{row.startdatum}</td>
-                    <td style={{ padding: '10px'}}>{row.enddatum}</td>
-                    <td><Link className="btn btn-dark" to={`/kurse/show/${row.id_kurs}`}>Anzeigen</Link></td>
-                    <td><Link className="btn btn-info" to={`/kurse/edit/${row.id_kurs}`}><Pencil color="white" size={15} /></Link></td>
-                    <td><Button onClick={() => openModal(row.id_kurs)} className="btn btn-danger" ><Trash color="white" size={15}/></Button></td>        
+                <tr key={row.id_lehrbetrieb}>
+                    <td style={{ padding: '10px'}}>{row.id_lehrbetrieb}</td>
+                    <td style={{ padding: '10px'}}>{row.firma}</td>
+                    <td style={{ padding: '10px'}}>{row.strasse}</td>
+                    <td style={{ padding: '10px'}}>{row.plz}</td>
+                    <td style={{ padding: '10px'}}>{row.ort}</td>
+                    <td><Link className="btn btn-info" to={`/lehrbetriebe/edit/${row.id_lehrbetrieb}`}><Pencil color="white" size={15} /></Link></td>
+                    <td><Button onClick={() => openModal(row.id_lehrbetrieb)} className="btn btn-danger" ><Trash color="white" size={15}/></Button></td>        
                 </tr>);
             })}
             </tbody>
@@ -95,14 +93,14 @@ function KurseTable() {
         handleShow(true);
     }
     
-    /* Hier wird der Kurs gelöscht. Der API-Call wird asynchron ausgeführt */
+    /* Hier wird der Lehrbetrieb gelöscht. Der API-Call wird asynchron ausgeführt */
     const deleteData = async () => {
         handleLoading(true);
         handleShowError(false);
         handleShowSuccess(false);
         /* Fehler abfangen */
         try {
-            const response = await axios.delete("https://luca.dnet.ch/kurse/" + modalID);
+            const response = await axios.delete("https://luca.dnet.ch/lehrbetriebe/" + modalID);
             removeDataFromList();
             handleShowSuccess(true);
         }catch(err){
@@ -112,11 +110,11 @@ function KurseTable() {
         handleLoading(false);
     };
     
-    /* Der gelöschte Kurse wird aus dem state array entfernt*/
+    /* Der gelöschte Lehrbetriebe wird aus dem state array entfernt*/
     const removeDataFromList = () => {
-        setKurse(current =>
-            current.filter(kurs => {
-              return kurs.id_kurs !== modalID;
+        setLehrbetriebe(current =>
+            current.filter(lehrbetrieb => {
+              return lehrbetrieb.id_lehrbetrieb !== modalID;
             }),
         );
         setModalID("");
@@ -126,9 +124,9 @@ function KurseTable() {
     function renderModal(){
         return(<Modal show={show} onHide={() => handleShow(false)}>
             <Modal.Header closeButton>
-              <Modal.Title>Kurs löschen</Modal.Title>
+              <Modal.Title>Lehrbetrieb löschen</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Wollen Sie den ausgewählten Kurs wirklich löschen?</Modal.Body>
+            <Modal.Body>Wollen Sie den ausgewählten Lehrbetrieb wirklich löschen?</Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={() => handleShow(false)}>
                 Abbrechen
@@ -143,10 +141,10 @@ function KurseTable() {
     /* Rendering Tabelle + Popup*/
     return(
         <div>
-            <h1>Kurse Dashboard <Link className="btn btn-primary" to={`/kurse/add`}>Kurs erfassen <PlusCircle color="white" size={15} /></Link></h1>
+            <h1>Lehrbetriebe Dashboard <Link className="btn btn-primary" to={`/lehrbetriebe/add`}>Lehrbetrieb erfassen <PlusCircle color="white" size={15} /></Link></h1>
             <Alert show={showSuccess} variant="success">
                 <p>
-                 Kurs wurde erfolgreich entfernt.
+                 Lehrbetrieb wurde erfolgreich entfernt.
                 </p>
             </Alert>
             <Alert show={showError} variant="danger">
@@ -160,4 +158,4 @@ function KurseTable() {
     );
 }
 
-export default KurseTable;
+export default LehrbetriebeTable;

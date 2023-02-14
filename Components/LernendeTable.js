@@ -14,10 +14,10 @@ import {Pencil} from 'react-bootstrap-icons';
 import {Trash} from 'react-bootstrap-icons';
 import {PlusCircle} from 'react-bootstrap-icons';
 
-function KurseTable() {
+function LernendeTable() {
       
-    /* State für geladenen Kurse*/  
-    const [kurse, setKurse] = useState([]);
+    /* State für geladenen Lernende*/  
+    const [lernende, setLernende] = useState([]);
     
     /* Modal states & handler */
     const [modalID, setModalID] = useState("");
@@ -39,10 +39,10 @@ function KurseTable() {
         getData();
     }, []);
     
-    /* Hier werden alle Kurse von der API geladen. Der API-Call wird asynchron ausgeführt */
+    /* Hier werden alle Lernende von der API geladen. Der API-Call wird asynchron ausgeführt */
     const getData = async () => {
-        const res = await axios.get("https://luca.dnet.ch/kurse/");
-        setKurse(res.data.data);
+        const res = await axios.get("https://luca.dnet.ch/lernende/");
+        setLernende(res.data.data);
     };
 
     /* Hier wird der Header der Tabelle vorbereitet */
@@ -51,12 +51,13 @@ function KurseTable() {
             <thead> 
                 <tr>
                     <th>Id</th>
-                    <th>Thema</th>
-                    <th>Startdatum</th>
-                    <th>Enddatum</th>
-                    <th>Kursteilnehmer</th>
-                    <th>Bearbeiten</th>
-                    <th>Löschen</th>
+                    <th>Vorname</th>
+                    <th>Nachname</th>
+                    <th>Strasse</th>
+                    <th>PLZ</th>
+                    <th>Ort</th>
+                    <th>Email</th>
+                    <th>Handy</th>
                 </tr>
             </thead>);
     }
@@ -65,16 +66,19 @@ function KurseTable() {
     function renderBody() {
         return(
             <tbody>
-            {kurse.map((row) => {
+            {lernende.map((row) => {
                 return(
-                <tr key={row.id_kurs}>
-                    <td style={{ padding: '10px'}}>{row.id_kurs}</td>
-                    <td style={{ padding: '10px'}}>{row.kursthema}</td>
-                    <td style={{ padding: '10px'}}>{row.startdatum}</td>
-                    <td style={{ padding: '10px'}}>{row.enddatum}</td>
-                    <td><Link className="btn btn-dark" to={`/kurse/show/${row.id_kurs}`}>Anzeigen</Link></td>
-                    <td><Link className="btn btn-info" to={`/kurse/edit/${row.id_kurs}`}><Pencil color="white" size={15} /></Link></td>
-                    <td><Button onClick={() => openModal(row.id_kurs)} className="btn btn-danger" ><Trash color="white" size={15}/></Button></td>        
+                <tr key={row.id_lernende}>
+                    <td style={{ padding: '10px'}}>{row.id_lernende}</td>
+                    <td style={{ padding: '10px'}}>{row.vorname}</td>
+                    <td style={{ padding: '10px'}}>{row.nachname}</td>
+                    <td style={{ padding: '10px'}}>{row.strasse}</td>
+                    <td style={{ padding: '10px'}}>{row.plz}</td>
+                    <td style={{ padding: '10px'}}>{row.ort}</td>
+                    <td style={{ padding: '10px'}}>{row.email}</td>
+                    <td style={{ padding: '10px'}}>{row.handy}</td>
+                    <td><Link className="btn btn-info" to={`/lernende/edit/${row.id_lernende}`}><Pencil color="white" size={15} /></Link></td>
+                    <td><Button onClick={() => openModal(row.id_lernende)} className="btn btn-danger" ><Trash color="white" size={15}/></Button></td>        
                 </tr>);
             })}
             </tbody>
@@ -95,14 +99,14 @@ function KurseTable() {
         handleShow(true);
     }
     
-    /* Hier wird der Kurs gelöscht. Der API-Call wird asynchron ausgeführt */
+    /* Hier wird der Lernende gelöscht. Der API-Call wird asynchron ausgeführt */
     const deleteData = async () => {
         handleLoading(true);
         handleShowError(false);
         handleShowSuccess(false);
         /* Fehler abfangen */
         try {
-            const response = await axios.delete("https://luca.dnet.ch/kurse/" + modalID);
+            const response = await axios.delete("https://luca.dnet.ch/lernende/" + modalID);
             removeDataFromList();
             handleShowSuccess(true);
         }catch(err){
@@ -112,11 +116,11 @@ function KurseTable() {
         handleLoading(false);
     };
     
-    /* Der gelöschte Kurse wird aus dem state array entfernt*/
+    /* Der gelöschte Lernende wird aus dem state array entfernt*/
     const removeDataFromList = () => {
-        setKurse(current =>
-            current.filter(kurs => {
-              return kurs.id_kurs !== modalID;
+        setLernende(current =>
+            current.filter(lernende => {
+              return lernende.id_lernende !== modalID;
             }),
         );
         setModalID("");
@@ -126,9 +130,9 @@ function KurseTable() {
     function renderModal(){
         return(<Modal show={show} onHide={() => handleShow(false)}>
             <Modal.Header closeButton>
-              <Modal.Title>Kurs löschen</Modal.Title>
+              <Modal.Title>Lernende löschen</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Wollen Sie den ausgewählten Kurs wirklich löschen?</Modal.Body>
+            <Modal.Body>Wollen Sie den ausgewählten Lernende wirklich löschen?</Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={() => handleShow(false)}>
                 Abbrechen
@@ -143,10 +147,10 @@ function KurseTable() {
     /* Rendering Tabelle + Popup*/
     return(
         <div>
-            <h1>Kurse Dashboard <Link className="btn btn-primary" to={`/kurse/add`}>Kurs erfassen <PlusCircle color="white" size={15} /></Link></h1>
+            <h1>Lernende Dashboard <Link className="btn btn-primary" to={`/lernende/add`}>Lernende erfassen <PlusCircle color="white" size={15} /></Link></h1>
             <Alert show={showSuccess} variant="success">
                 <p>
-                 Kurs wurde erfolgreich entfernt.
+                 Lernende wurde erfolgreich entfernt.
                 </p>
             </Alert>
             <Alert show={showError} variant="danger">
@@ -160,4 +164,4 @@ function KurseTable() {
     );
 }
 
-export default KurseTable;
+export default LernendeTable;
